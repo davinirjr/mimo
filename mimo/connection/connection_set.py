@@ -16,14 +16,3 @@ class ConnectionSet:
 
     def __getitem__(self, key):
         return self.connections[key]
-
-    def drain(self):
-        """
-        Drain all connections and return the streams that received updates.
-        :return: Set of updated streams
-        """
-        drained = set()
-        for connection in self.connections.values():
-            if connection.drain():
-                drained.add(connection.name)
-        return drained

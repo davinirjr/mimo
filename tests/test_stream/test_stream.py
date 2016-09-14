@@ -1,17 +1,33 @@
 import unittest
 
 from mimo import Stream
+from mimo.connection.connection_set import ConnectionSet
+from mimo.connection.input import Input
+from mimo.connection.output import Output
 
 
 class TestStream(unittest.TestCase):
-    def test_pipe(self):
-        stream1 = Stream(['a'], ['b'])
-        stream2 = Stream(['c'], ['d'])
+    def test_run(self):
+        stream = Stream(['a'], ['b'], fn=fn)
+        input = Input('a', 5)
+        ins = ConnectionSet([input])
+        output = Output('b', 5)
+        outs = ConnectionSet([output])
+        input.entities.extend([1, 2, 3, 4, 5, 6, 7, 8, 9, 0])
 
-        stream1.pipe(stream2)
+        stream.run(ins, outs)
+        self.assertEqual([2, 4, 6, 8, 10], list(output.entities))
+        stream.run(ins, outs)
+        self.assertEqual([2, 4, 6, 8, 10, 12], list(output.entities))
+        output.entities.clear()
+        stream.run(ins, outs)
+        self.assertEqual([14, 16, 18, 0], list(output.entities))
 
-        self.assertEqual({stream2}, stream1.children['b'])
-        self.assertEqual({stream2.ins['c']}, stream1.outs['b'].connections)
+
+def fn(ins, outs, state):
+    while len(ins.a) > 0:
+        if not outs.b.push(2 * ins.a.pop()):
+            return True
 
 
 if __name__ == '__main__':

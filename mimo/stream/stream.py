@@ -1,84 +1,46 @@
-from mimo.connection import Connection, ConnectionSet
+from mimo.connection.connection_set import ConnectionSet
 
 
 class Stream:
 
+    __slots__ = ('state', 'ins', 'outs', 'name', 'fn')
+
     IN = []
     OUT = []
 
-    def __init__(self, ins=None, outs=None, name=None):
-        self.paused = False
+    def __init__(self, ins=None, outs=None, fn=None, name=None):
+        """
+        Initialise a stream. Streams can be sub-classed to alter the behaviour or customised directly.
+        If sub-classing a stream, the class members `IN` and `OUT` define the names of the input and output entities.
+        Overriding the `run` function will determine what the stream does and the name of the class determines the name
+        of the stream.
+        If creating a stream directly, the parameters `ins` and `outs` define the names of the input and output
+        entities. The `fn` parameter is a function that will determine what the stream does. This function takes a set
+        of inputs, a set of outputs and the state of the stream as a dictionary. The `name` parameter determines the
+        name of the stream.
 
-        ins = self.IN if ins is None else ins
-        outs = self.OUT if outs is None else outs
-        self.ins = ConnectionSet(Connection(name) for name in ins)
-        self.outs = ConnectionSet(Connection(name) for name in outs)
-        self.children = {out: set() for out in outs}
+        :param ins: names of input entities
+        :param outs: names of output entities
+        :param name: name of the stream
+        :param fn: run function
+        """
+        self.state = {}
+
+        self.ins = self.IN if ins is None else ins
+        self.outs = self.OUT if outs is None else outs
+        self.fn = fn
         self.name = type(self).__name__ if name is None else name
 
     def run(self, ins, outs):
         """
-        The main method to over-ride when implementing custom streams.
+        The main method to over-ride when implementing custom streams. This can also be over-ridden by providing the
+        'fn' parameter when creating a new stream.
+
         :param ins: connection set of input connections
         :type ins: ConnectionSet
         :param outs: connection set of output connections
         :type outs: ConnectionSet
-        :return: True if stream is paused
+        :return: True if stream is did not finish running (eg. was suspended because output was full)
+        :rtype: bool
         """
-        raise NotImplementedError
-
-    def activate(self):
-        """
-        Run a step and propogate the output entities to any connected child streams.
-        :return:
-        """
-        run = self.run
-        ins = self.ins
-        outs = self.outs
-        children = self.children
-
-        paused = True
-        while paused:
-            paused = run(ins, outs)
-            updated_streams = set()
-            for streams in children.values():
-                updated_streams.update(stream for stream in streams if stream.paused)
-            for out in outs.drain():
-                updated_streams.update(children[out])
-            for updated_stream in updated_streams:
-                updated_stream.activate()
-        self.paused = paused
-
-    def pipe(self, stream, output=None, input=None):
-        """
-        Pipe the output of one stream to the input of another. If there are more than one outputs or inputs, the
-        specific output/input must be specified.
-        :param stream: stream to connect to
-        :param output: name of the output connection (default: None)
-        :param input: name of the input connection (default: None)
-        :return: stream connected to
-        """
-        if len(self.outs) == 0:
-            raise ValueError('{} has no output to pipe from'.format(self.name))
-        elif len(stream.ins) == 0:
-            raise ValueError('{} has no input to pipe to'.format(stream.name))
-
-        if output is None:
-            if len(self.outs) == 1:
-                from_connection = next(iter(self.outs))
-            else:
-                raise ValueError('{} has multiple output and none chosen to pipe from'.format(self.name))
-        else:
-            from_connection = self.outs[output]
-
-        if input is None:
-            if len(stream.ins) == 1:
-                to_connection = next(iter(stream.ins))
-            else:
-                raise ValueError('{} has multiple output and none chosen to pipe from'.format(stream.name))
-        else:
-            to_connection = stream.ins[input]
-
-        from_connection.join(to_connection)
-        self.children[from_connection.name].add(stream)
-        return stream
+        return self.fn(ins, outs, self.state)
