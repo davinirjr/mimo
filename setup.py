@@ -10,10 +10,10 @@ setup(
     version='1.0.0',
     author='Liam H. Childs',
     author_email='liam.h.childs@gmail.com',
-    packages=find_packages(exclude=['test']),
+    packages=find_packages(exclude=['tests']),
     url='https://github.com/childsish/mimo',
     license='LICENSE.txt',
-    description='A Python multi-input, multi-output streaming library',
+    description='A streaming multi-input, multi-output Python library',
     long_description=long_description,
     install_requires=['lhc-python']
 )

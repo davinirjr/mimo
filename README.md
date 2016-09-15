@@ -3,6 +3,9 @@
 mimo
 ====
 
++ Multiple input and multiple output (as opposed to functions where inputs and outputs are always synchronised) 
+* Less memory (because of streaming)
+
 MiMo is a multi-input multi-output Python streaming library. It allows users to define a stream with multiple inputs and multiple outputs and run them completely from beginning to end. Back-pressure has also been implemented to prevent too much memory from being used.
 
 Usage

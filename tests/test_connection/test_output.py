@@ -1,6 +1,5 @@
 import unittest
 
-from mimo import Stream
 from mimo.connection.output import Output
 
 
