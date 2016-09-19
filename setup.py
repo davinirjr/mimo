@@ -7,7 +7,7 @@ long_description = open('README.rst').read() if os.path.exists('README.rst') els
 
 setup(
     name='mimo',
-    version='1.0.01',
+    version='1.0.1',
     author='Liam H. Childs',
     author_email='liam.h.childs@gmail.com',
     packages=find_packages(exclude=['tests']),
