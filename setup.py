@@ -8,6 +8,7 @@ with open('README.rst', encoding='utf-8') if os.path.exists('README.rst') else \
 
 setup(
     name='mimo',
+    version='1.0.4',
     author='Liam H. Childs',
     author_email='liam.h.childs@gmail.com',
     packages=find_packages(exclude=['tests']),
