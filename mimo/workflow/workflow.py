@@ -49,7 +49,7 @@ class Workflow:
                     continue
                 for input in inputs:
                     input.extend(output.entities)
-                output.entities.clear()
+                output.clear()
                 for input_id in input_ids:
                     stream_ids = self.graph.get_children(input_id)
                     stack.extend(stream_id for stream_id in stream_ids if stream_id not in stacked)
