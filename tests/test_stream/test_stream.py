@@ -15,12 +15,12 @@ class TestStream(unittest.TestCase):
         outs = ConnectionSet([output])
         input.entities.extend([1, 2, 3, 4, 5, 6, 7, 8, 9, 0])
 
-        stream.run(ins, outs)
+        self.assertTrue(stream.run(ins, outs))
         self.assertEqual([2, 4, 6, 8, 10], list(output.entities))
-        stream.run(ins, outs)
+        self.assertTrue(stream.run(ins, outs))
         self.assertEqual([2, 4, 6, 8, 10, 12], list(output.entities))
         output.entities.clear()
-        stream.run(ins, outs)
+        self.assertFalse(stream.run(ins, outs))
         self.assertEqual([14, 16, 18, 0], list(output.entities))
 
 
