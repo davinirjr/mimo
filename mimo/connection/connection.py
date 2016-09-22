@@ -11,5 +11,8 @@ class Connection:
     def __len__(self):
         return len(self.entities)
 
+    def clear(self):
+        self.entities.clear()
+
     def is_full(self):
         return len(self.entities) >= self.threshold
