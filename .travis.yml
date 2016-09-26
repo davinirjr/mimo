@@ -1,20 +1,20 @@
 language: python
 python:
-  - "3.5"
+- '3.5'
 install:
-  - python setup.py install
+- python setup.py install
 script:
-  - python -m unittest discover -s tests
+- python -m unittest discover -s tests
 addons:
   apt_packages:
-    - pandoc
+  - pandoc
 before_deploy:
-  - pandoc --from=markdown --to=rst --output=README.rst README.md
+- pandoc --from=markdown --to=rst --output=README.rst README.md
 deploy:
   provider: pypi
   user: childsish
   password:
-    secure: BJg0b1taCp/9Q+W59OYPHMERGSMKCF2i0u9uiHM3Q11pyC7Uh5nFQ0ScWUrQ5qLtg6aAFqoSruD2yxzbYYwdt2hBChlt/B5k5Mx3B/UH0fZiSFLnQf4zaz+1TjKLKZKOph/Erg/92I3NQXJIdg+mgmZ7wfzCWuxyts3kIJHRru+hOoP7bLdyDVV9wArZyuzEuG03p6a11HFgdVdcZZeTGPW3TouR0GtlInUeJpjJhnpTqKT/jkASyWBYnToHRvxiPlmeMZr+/7u50t/VoqUFAU9lyEMzKYhTN3xIyJzv+NxTCLOz+ebfejN1p3HuTGMW9/1eYUgj7kPMLwtdi1c/5ZpvxJH5f0jaXc0e1D+jyBWSqrHywhJDBalWPcUTaV28odtlNywPYxvhi7X+XK9nk7REZlzATGXMw2mBMSr4sCucS2EzAkp4uWQe9FOxP9otYvFmYq89qgjqs8a3ecRGki6NOBH9CAZxb+pijvg5T8JAUloxuoO4pIOyNehFKwrUlSDJZjt6yGNdPkcSdKbeNDyt6XwRIYzrNF/W5uxKVDrWDsLHnTEX68J7f3ddKdVnNRjovILDij04JKHGRco9RgTId23Q+vwYiNmSoZv8w3DJBrWLl2qzI3cPkuwMQokwyNFq24WjEwcKr+0WfPr7uWJB737iMvGXDtMqUV7N+U8=
+    secure: Df80wcXWFkXJLcJLqllGu1xFbfPWYFFeVbNjjKg3tls6Xli5/2qEDgonjPOwly9lsXjvg1rJyaxIhE/6q6H0VdrebkfqpkDXQ7MQ9iHG9T+GoCCyUv7jH46UjDri6M9wCwpkbzpZCSrelfogULU+UJdJKHkQiP/8S/gHfxKh9LMUPqBvoF9z6C9ffEiF5a4xw1sx2ORFOpy82BMFkGz9TMkvEolsdfFxl1YHL2BXP03C1XJFSD29uXXJoeampUTgWd8PCAARQCd/pTjQV0qbVIjWK7VsbYzqyyh3s2LVZpOyXvhZhYzVzc07luHfnj4VcZZfZi6bWIovOMvGKsBxzSM0W1hhCtvmLYuowAeApfHch/6LZ7BGKQhnpegKRBuMty4EEwBUCi2EcMxx0mrmCWzj85XonbDUk2jAo0iS6I2o6z/leyb2T7Jpahcttez1nHwejfIEhWIelLg/nS+N3+oxU0Ksxdv5Kc7AxZocLDauSWFYi2QJHQGDcuLnmPEvuFKVBWF+lupV6rHfYWtd2dxk0dpC0UMs8vLkSFKOfpAZEb5rZxNa/MZD8EVHvnnYvCUu4t5LlmaA2tuq3txyisIFrfDB08Myr+6iyO0Vm5iNjmpH+W2ve8lx320aXY5WQ1XRpHO3YpstPrWDN18xcOAB97RGQV9gfJBPRXlpbq4=
   on:
     tags: true
     distributions: sdist bdist_wheel
