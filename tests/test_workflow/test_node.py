@@ -14,6 +14,14 @@ class TestStep(unittest.TestCase):
         self.assertEqual(2, len(workflow.streams))
         self.assertIn(step2.input_ids['c'], workflow.graph.graph.adjacency[step1.output_ids['b']].children)
 
+    def test_push(self):
+        workflow = Workflow()
+        step = workflow.add_stream(Stream(['a'], ['b']))
+
+        step.push(0)
+
+        self.assertEqual(0, workflow.inputs[step.input_ids['a']].get_nowait())
+
 
 if __name__ == '__main__':
     unittest.main()

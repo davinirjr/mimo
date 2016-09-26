@@ -42,3 +42,15 @@ class Node:
         self.workflow.graph.add_edge(output_id, input_id)
         self.workflow.outputs[output_id].pipe(self.workflow.inputs[input_id])
         return step
+
+    def push(self, item, input=None):
+        if input is None:
+            if len(self.input_ids) == 1:
+                input_id = next(iter(self.input_ids.values()))
+            else:
+                msg = '{} has multiple input and none chosen to push to'
+                raise ValueError(msg.format(self.workflow.streams[self.stream_id]))
+        else:
+            input_id = self.input_ids[input]
+
+        self.workflow.inputs[input_id].put_nowait(item)
