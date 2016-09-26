@@ -14,32 +14,29 @@ def main():
     workflow.run()
 
 
-def stream1(ins, outs, state):
+async def stream1(ins, outs, state):
     """
     Generates integers from 0 to 99.
     """
-    if 'iterator' not in state:
-        state['iterator'] = iter(range(100))
-    iterator = state['iterator']
-    for item in iterator:
-        if not outs.a.push(item):
-            return True
+    for item in iter(range(100)):
+        await outs.a.push(item)
+    outs.a.close()
 
 
-def stream2(ins, outs, state):
+async def stream2(ins, outs, state):
     """
     Multiply incoming entities by 2 and print to stdout
     """
-    while len(ins.b) > 0:
-        sys.stdout.write('{}\n'.format(2 * ins.b.pop()))
+    async for item in ins.b:
+        sys.stdout.write('{}\n'.format(2 * item))
 
 
-def stream3(ins, outs, state):
+async def stream3(ins, outs, state):
     """
     Divide incoming entities by 10 and print to stdout
     """
-    while len(ins.c) > 0:
-        sys.stdout.write('{}\n'.format(ins.c.pop() / 10))
+    async for item in ins.c:
+        sys.stdout.write('{}\n'.format(item / 10))
 
 if __name__ == '__main__':
     import sys

@@ -15,7 +15,7 @@ There are two core components in MiMo; the `Stream` and the `Workflow`. Streams 
 
 ### Streams
 
-Implementing a stream can be done through inheriting a sub-class from the `Stream` class or creating a `Stream`class with a custom function as the `fn` parameter. The following code shows the same implementation of a stream that will produce the numbers from 0 to 99.
+Implementing a stream can be done through inheriting a sub-class from the `Stream` class or creating a `Stream` class with a custom function as the `fn` parameter. The following code shows two implementations of a stream that will produce the numbers from 0 to 99.
 
 
 ```python
@@ -28,36 +28,26 @@ class MyStream(Stream):
 
     IN = []
     OUT = ['entity']
-
-    def __init__(self):
-        super().__init__()
-        self.iterator = None
     
-    def run(self, ins, outs):
-        if self.iterator is None:
-            self.iterator = iter(range(100))
-        for item in self.iterator:
-            if not outs.entity.pueh(item):
-                return True
+    async def run(self, ins, outs):
+        for item in iter(range(100)):
+            await outs.entity.push(item)
 
 
 # Method 2 (constructor)
 
 my_stream = Stream(outs=['entity], fn=my_stream_fn)
 
-def my_stream_fn(ins, outs, state):
-    if 'iterator' not in state:
-        state['iterator'] = iter(range(100))
-    for item in state['iterator']:
-        if not outs.entity.push(item):
-            return True
+async def my_stream_fn(ins, outs, state):
+    for item in iter(range(100)):
+        await outs.entity.push(item)
 ```
 
 There are a few things to note about the `run` function.
-1. It takes two parameters, `ins` and `outs`, that contain the input streams and the output streams. The names of the input and output streams are defined by the `IN` and `OUT` member variables and accessing the input and output streams can be done through the attributes. From the example above, accessing the `entity` output stream can be done with `outs.entity`.
-2. Input streams can be popped and peeked. Input streams haven't been used in the above example, but the entities in the stream can be accessed one at a time with the functions `pop` and `peek`. Popping an entity will remove it from the input stream, and peeking will look at the top-most entity without removing it from the stream.
-2. Output streams can be pushed. Pushing an entity to an output stream will make it available to any connected downstream streams. The `push` function return a boolean to indicate whether the stream is full or not (`True` if still pushable). A full stream ca still be pushed to, but users can make their custom streams back-pressure aware by testing this value.
-3. The return value is a boolean. If a stream did not fully complete it's task (possibly due to back-pressure), then it should return `True` to indicate that it can be run again after downstream streams have completed. Otherwise a `False` (or equivalent like `None`) will prevent further execution of the stream until new input is available. 
+1. It must be asynchronous, ie. it must be defined wth the `async def` keywords. 
+2. It takes two parameters, `ins` and `outs`, that contain the input streams and the output streams. The names of the input and output streams are defined by the `IN` and `OUT` member variables or overridden using the `ins` and `outs` of the initialisation function. Accessing the input and output streams can be done through the attributes. From the example above, accessing the `entity` output stream can be done with `outs.entity`.
+3. Input streams can be popped and peeked and this must be done using the `await` keyword. Input streams haven't been used in the above example, but the entities in the stream can be accessed one at a time with the functions `pop` and `peek`. Popping an entity will remove it from the input stream, and peeking will look at the top-most entity without removing it from the stream. Input streams can also be iterated using the `async for` looping construct.
+4. Output streams can be pushed and must also use the `await` keyword. Pushing an entity to an output stream will make it available to any connected downstream streams.
 
 ### Workflows
 

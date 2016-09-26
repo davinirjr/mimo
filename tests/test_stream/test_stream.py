@@ -1,33 +1,20 @@
 import unittest
 
 from mimo import Stream
-from mimo.connection.connection_set import ConnectionSet
-from mimo.connection.input import Input
-from mimo.connection.output import Output
+from mimo.test_helper import TestHelper
 
 
 class TestStream(unittest.TestCase):
     def test_run(self):
         stream = Stream(['a'], ['b'], fn=fn)
-        input = Input('a', 5)
-        ins = ConnectionSet([input])
-        output = Output('b', 5)
-        outs = ConnectionSet([output])
-        input.entities.extend([1, 2, 3, 4, 5, 6, 7, 8, 9, 0])
+        helper = TestHelper(stream)
 
-        self.assertTrue(stream.run(ins, outs))
-        self.assertEqual([2, 4, 6, 8, 10], list(output.entities))
-        self.assertTrue(stream.run(ins, outs))
-        self.assertEqual([2, 4, 6, 8, 10, 12], list(output.entities))
-        output.entities.clear()
-        self.assertFalse(stream.run(ins, outs))
-        self.assertEqual([14, 16, 18, 0], list(output.entities))
+        self.assertEqual({'b': [2, 4, 6, 8, 10, 12, 14, 16, 18, 0]}, helper.run({'a': [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]}))
 
 
-def fn(ins, outs, state):
-    while len(ins.a) > 0:
-        if not outs.b.push(2 * ins.a.pop()):
-            return True
+async def fn(ins, outs, state):
+    async for item in ins.a:
+        await outs.b.push(2 * item)
 
 
 if __name__ == '__main__':

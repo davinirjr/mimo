@@ -40,4 +40,5 @@ class Node:
             input_id = step.input_ids[input]
 
         self.workflow.graph.add_edge(output_id, input_id)
+        self.workflow.outputs[output_id].pipe(self.workflow.inputs[input_id])
         return step

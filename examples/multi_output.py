@@ -3,43 +3,42 @@ from mimo import Workflow, Stream
 
 def main():
     workflow = Workflow(10)
-    step1 = workflow.add_stream(Stream(outs=['a'], fn=stream1))
-    step2 = workflow.add_stream(Stream(['b'], fn=stream2))
-    step3 = workflow.add_stream(Stream(['c'], fn=stream3))
+    step1 = workflow.add_stream(Stream(outs=['a', 'b'], fn=stream1))
+    step2 = workflow.add_stream(Stream(['c'], fn=stream2))
+    step3 = workflow.add_stream(Stream(['d'], fn=stream3))
 
-    step1.pipe(step2)
-    step1.pipe(step3)
+    step1.pipe(step2, 'a')
+    step1.pipe(step3, 'b')
 
     print(str(workflow))
     workflow.run()
 
 
-def stream1(ins, outs, state):
+async def stream1(ins, outs, state):
     """
-    Generates integers from 0 to 99.
+    Generates one stream of integers from 0 to 99 and another from 100 to 1
     """
-    if 'iterator' not in state:
-        state['iterator'] = iter(range(100))
-    iterator = state['iterator']
-    for item in iterator:
-        if not outs.a.push(item):
-            return True
+    for item in iter(range(100)):
+        await outs.a.push(item)
+        await outs.b.push(100 - item)
+    outs.a.close()
+    outs.b.close()
 
 
-def stream2(ins, outs, state):
+async def stream2(ins, outs, state):
     """
     Multiply incoming entities by 2 and print to stdout
     """
-    while len(ins.b) > 0:
-        sys.stdout.write('{}\n'.format(2 * ins.b.pop()))
+    async for item in ins.c:
+        sys.stdout.write('{}\n'.format(2 * item))
 
 
-def stream3(ins, outs, state):
+async def stream3(ins, outs, state):
     """
     Divide incoming entities by 10 and print to stdout
     """
-    while len(ins.c) > 0:
-        sys.stdout.write('{}\n'.format(ins.c.pop() / 10))
+    async for item in ins.d:
+        sys.stdout.write('{}\n'.format(item / 10))
 
 if __name__ == '__main__':
     import sys
