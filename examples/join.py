@@ -1,4 +1,4 @@
-from mimo import Workflow, Stream
+from mimo import Workflow, Stream, azip
 
 
 def main():
@@ -14,36 +14,30 @@ def main():
     workflow.run()
 
 
-def stream1(ins, outs, state):
+async def stream1(ins, outs, state):
     """
     Generates integers from 0 to 99.
     """
-    if 'iterator' not in state:
-        state['iterator'] = iter(range(100))
-    iterator = state['iterator']
-    for item in iterator:
-        if not outs.a.push(item):
-            return True
+    for item in iter(range(100)):
+        await outs.a.push(item)
+    outs.a.close()
 
 
-def stream2(ins, outs, state):
+async def stream2(ins, outs, state):
     """
     Generates integers from 99 to 0.
     """
-    if 'iterator' not in state:
-        state['iterator'] = iter(range(99, -1, -1))
-    iterator = state['iterator']
-    for item in iterator:
-        if not outs.b.push(item):
-            return True
+    for item in iter(range(99, -1, -1)):
+        await outs.b.push(item)
+    outs.b.close()
 
 
-def stream3(ins, outs, state):
+async def stream3(ins, outs, state):
     """
     Divide incoming entities by 10 and print to stdout
     """
-    while len(ins.c) > 0 and len(ins.d) > 0:
-        sys.stdout.write('{}\n'.format(ins.c.pop() + ins.d.pop()))
+    async for c, d in azip(ins.c, ins.d):
+        sys.stdout.write('{}\n'.format(c + d))
 
 if __name__ == '__main__':
     import sys
