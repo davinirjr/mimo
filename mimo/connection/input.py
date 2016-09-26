@@ -27,7 +27,7 @@ class Input(asyncio.Queue):
 
     async def peek(self):
         while self.empty():
-            if self._closed and len(self._putters) == 0:
+            if self.is_closed():
                 raise ConnectionClosed
 
             getter = self._loop.create_future()
@@ -71,3 +71,9 @@ class Input(asyncio.Queue):
                     getter.set_exception(ConnectionClosed)
                 else:
                     getter.set_result(None)
+
+    def is_closed(self):
+        return self._closed and len(self._queue) == 0 and len(self._putters) == 0
+
+    def is_open(self):
+        return not self.is_closed()
