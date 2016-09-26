@@ -8,7 +8,7 @@ class Stream:
     IN = []
     OUT = []
 
-    def __init__(self, ins=None, outs=None, fn=None, name=None):
+    def __init__(self, ins=None, outs=None, fn=None, name=None, state=None):
         """
         Initialise a stream. Streams can be sub-classed to alter the behaviour or customised directly.
         If sub-classing a stream, the class members `IN` and `OUT` define the names of the input and output entities.
@@ -24,12 +24,11 @@ class Stream:
         :param name: name of the stream
         :param fn: run function
         """
-        self.state = {}
-
         self.ins = self.IN if ins is None else ins
         self.outs = self.OUT if outs is None else outs
         self.fn = fn
         self.name = type(self).__name__ if name is None else name
+        self.state = {} if state is None else state
 
     def run(self, ins, outs):
         """

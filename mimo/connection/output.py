@@ -1,12 +1,15 @@
-from .connection import Connection
+class Output:
+    def __init__(self, name):
+        self.name = name
+        self._connections = []
 
+    async def push(self, entity):
+        for connection in self._connections:
+            await connection.push(entity)
 
-class Output(Connection):
-    def push(self, entity):
-        """
-        Add an entity to the end of the connection. Return if connection can still be pushed to.
-        :param entity:
-        :return:
-        """
-        self.entities.append(entity)
-        return len(self.entities) < self.threshold
+    def pipe(self, connection):
+        self._connections.append(connection)
+
+    def close(self):
+        for connection in self._connections:
+            connection.close()
